@@ -84,7 +84,7 @@ def make_text(chains):
     for word in words: #words is list containing the first tuple worth of words
         character_count += len(word) + 1
 
-    while character_count < 130:
+    while character_count < 120:
         value_options = chains[key]
         next_word = choice(value_options)
         if next_word:
@@ -94,15 +94,33 @@ def make_text(chains):
         else: 
             key = choice(chains.keys())
 
-    #punctuation = [".", "!", "?", "!!!!!!!!!!!!!!!!!!!!!!!!!"]
-
+    punctuation = [".", "!", "?", "!!!!!!!!!!!!!!!!!!!!!!!!!"]
+    # weird_enders = ['(', ')', '[', ']']
+    if words[-1][-1] == ",":
+            words = words[:-1] + choice(punctuation)
     if words[-1].isalpha():
-        if words[-1][-1] == ",":
-            words = words[:-1] + choice([".", "!", "?", "!!!!!!!!!!!!!!!!!!!!!!!!!"])
-        else:
-            words[-1] += choice([".", "!", "?", "!!!!!!!!!!!!!!!!!!!!!!!!!"])
-
-    return " ".join(words)
+        words[-1] += choice(punctuation)
+        # elif words[-1][-1] is in weird_enders:
+        #     words[-1] += choice([punctuation])
+    
+    output = " ".join(words)
+    # print output
+    matching_punc_counts = {}
+    for char in output:
+        if char == '"':
+            matching_punc_counts['"'] = matching_punc_counts.get('"', 0) + 1
+        elif char == '(':
+            matching_punc_counts['('] = matching_punc_counts.get('(', 0) + 1
+        elif char == ')':
+            matching_punc_counts[')'] = matching_punc_counts.get(')', 0) + 1        
+    print matching_punc_counts
+    if matching_punc_counts.get('"', 0) % 2 != 0:
+        output += '"'
+    if matching_punc_counts.get('(', 0) > matching_punc_counts.get(')', 0):
+        output += ')'
+    elif matching_punc_counts.get(')', 0) > matching_punc_counts.get('(', 0):
+        output = '(' + output
+    return output
 
 def tweet(chains):
     """Return text from chains."""
@@ -113,17 +131,19 @@ def tweet(chains):
         if user_input == 'q':
             break
 
+        
+
 input_paths = argv[1:] 
 
 
 input_text = open_and_read_file(input_paths)
 
 
-chains = make_chains(input_text, 3)
+chains = make_chains(input_text, 2)
 
 
 random_text = make_text(chains)
 
 actual_tweet = tweet(chains)
 
-print actual_tweet
+actual_tweet
